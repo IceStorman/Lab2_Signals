@@ -7,42 +7,32 @@ import matplotlib.pyplot as plt
 
 STUDENT_NUMBER = 17
 
-# Operation counters (division is counted as a multiplication)
 ops = {"mul": 0, "add": 0}
 
-
-# ---------------- Part I ----------------
-
 def dft_term(f, k, i):
-    """One (i-th) term of the series for C_k in trigonometric form:
-    f_i * cos(2*pi*k*i/N) - j * f_i * sin(2*pi*k*i/N)."""
     N = len(f)
     angle = 2 * math.pi * k * i / N
     a = f[i] * math.cos(angle)
     b = -f[i] * math.sin(angle)
-    ops["mul"] += 5  # 3 for the angle, 2 for f*cos and f*sin
+    ops["mul"] += 5
     return a, b
 
 
 def dft_coefficient(f, k):
-    """C_k = A_k + j*B_k as the sum of N terms."""
     A, B = 0.0, 0.0
     for i in range(len(f)):
         a, b = dft_term(f, k, i)
         A += a
         B += b
         ops["add"] += 2
-    # rounding removes tiny errors like -0.0000000001
     return complex(round(A, 10) + 0.0, round(B, 10) + 0.0)
 
 
 def dft(f):
-    """DFT of an arbitrary input vector f."""
     return [dft_coefficient(f, k) for k in range(len(f))]
 
 
 def idft(C):
-    """Inverse DFT: s_n = 1/N * sum C_k * exp(j*2*pi*k*n/N)."""
     N = len(C)
     s = []
     for n in range(N):
@@ -101,17 +91,13 @@ def part1():
     plot_spectrum(C, f"Part I (N={N})", "part1_spectrum.png")
 
 
-# ---------------- Part II ----------------
-
 def make_samples(n):
-    """8 samples from the binary form of 96+n; the 8th digit is 1 for odd n, 0 for even n."""
     bits = format(96 + n, "b").zfill(7)
     bits = ("1" if n % 2 else "0") + bits
     return [int(b) for b in bits]
 
 
 def analog_signal(C, t, T):
-    """s(t) = 1/N * [C_0 + 2*sum_{k=1}^{N/2-1} |C_k| cos(2*pi*k*t/T + arg C_k) + Re(C_{N/2}) cos(pi*N*t/T)]."""
     N = len(C)
     s = C[0].real
     for k in range(1, N // 2):
@@ -153,15 +139,12 @@ def part2():
     return C
 
 
-# ---------------- Part III ----------------
-
 def part3(C):
     print("\n===== PART III =====")
     s = idft(C)
     for n, value in enumerate(s):
         print(f"s({n}T) = {value:.4f}")
 
-    # Analytic form for n = 0 and n = 1
     print("s(0) = 1/8 * (C_0 + C_1 + ... + C_7) = "
           f"1/8 * ({sum(C).real:.4f}) = {sum(C).real / 8:.4f}")
     terms = [C[k] * cmath.exp(1j * math.pi * k / 4) for k in range(8)]
