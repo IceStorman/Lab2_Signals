@@ -14,7 +14,7 @@ def dft_term(f, k, i):
     angle = 2 * math.pi * k * i / N
     a = f[i] * math.cos(angle)
     b = -f[i] * math.sin(angle)
-    ops["mul"] += 5
+    ops["mul"] += 2
     return a, b
 
 
@@ -24,7 +24,8 @@ def dft_coefficient(f, k):
         a, b = dft_term(f, k, i)
         A += a
         B += b
-        ops["add"] += 2
+        if i > 0:
+            ops["add"] += 2
     return complex(round(A, 10) + 0.0, round(B, 10) + 0.0)
 
 
